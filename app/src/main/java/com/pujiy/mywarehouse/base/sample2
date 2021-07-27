@@ -1,0 +1,119 @@
+ public Observable<List<KartuBarang>> getKartuBarang(String c_Kodecab,String periodFrom,
+                                                        String periodTo, String c_Iteno) {
+        dateFrom.set(Utils.formatDate(start.getTime(), "yyyy-MM-dd"));
+        dateTo.set(Utils.formatDate(end.getTime(), "yyyy-MM-dd"));
+        String url = getSessionHandler().getBusinessUrl();
+
+
+        Map<String, String> param = new HashMap<>();
+
+        param.put("open", "view_pl_hd_mob");
+        param.put("remoteFunction", "getReportKartuBarang");
+        param.put("C_KODECAB", c_Kodecab);
+        param.put("C_PERIODFROM", periodFrom);
+        param.put("C_PERIODTO", periodTo);
+        param.put("C_ITENO", c_Iteno);
+
+        return Rx2AndroidNetworking.post(url)
+                .addBodyParameter(param)
+                .build()
+                .getJSONObjectObservable()
+                .map(jsonObject -> {
+                    List<KartuBarang> listKartuBarang = new ArrayList<>();
+                    JSONArray dataRow = jsonObject.getJSONArray("DataRow");
+
+                    jsonObject =jsonObject.getJSONObject("Total");
+
+                    KartuBarangTotal kartuBarangTotal = new KartuBarangTotal();
+
+                    kartuBarangTotal.setN_TOTAL_IN_GOOD(jsonObject.getString("N_TOTAL_IN_GOOD"));
+                    kartuBarangTotal.setN_TOTAL_OUT_GOOD(jsonObject.getString("N_TOTAL_OUT_GOOD"));
+                    kartuBarangTotal.setN_TOTAL_SISA_GOOD(jsonObject.getString("N_TOTAL_SISA_GOOD"));
+                    kartuBarangTotal.setN_TOTAL_RIT_GOOD(jsonObject.getString("N_TOTAL_RIT_GOOD"));
+                    kartuBarangTotal.setN_TOTAL_RIT_GOOD_OUT(jsonObject.getString("N_TOTAL_RIT_GOOD_out"));
+                    totalGoodStockIn.set(jsonObject.getString("N_TOTAL_IN_GOOD"));
+                    totalGoodStockOut.set(jsonObject.getString("N_TOTAL_OUT_GOOD"));
+                    totalGoodStockSisa.set(jsonObject.getString("N_TOTAL_SISA_GOOD"));
+                    totalGoodRitIn.set(jsonObject.getString("N_TOTAL_RIT_GOOD"));
+                    totalGoodRitOut.set(jsonObject.getString("N_TOTAL_RIT_GOOD_out"));
+
+
+                    for (int i = 0; i < dataRow.length(); i++) {
+                        try {
+                            JSONObject obj = dataRow.getJSONObject(i);
+                            KartuBarang kartuBarang = new KartuBarang();
+                            kartuBarang.setD_DATETIME(obj.getString("D_DATETIME"));
+                            kartuBarang.setDOCUMENTS(obj.getString("DOCUMENTS"));
+                            kartuBarang.setNOREF(obj.getString("NOREF"));
+                            kartuBarang.setC_BATCH(obj.getString("C_BATCH"));
+                            kartuBarang.setC_CUNAM(obj.getString("C_CUNAM"));
+                            kartuBarang.setD_EXPIRED(obj.getString("D_EXPIRED"));
+                            kartuBarang.setC_STATUS(obj.getString("C_STATUS"));
+                            kartuBarang.setC_DOCTYPE(obj.getString("C_DOCTYPE"));
+public class UncaughtException implements Thread.UncaughtExceptionHandler {
+
+    private Context c;
+    private final String TAG = "UncaughtException";
+
+    private final Activity myContext;
+    private final String LINE_SEPARATOR = "\n";
+
+    public UncaughtException(Activity context) {
+        myContext = context;
+    }
+
+    public void uncaughtException(Thread thread, Throwable exception) {
+        StringWriter stackTrace = new StringWriter();
+        exception.printStackTrace(new PrintWriter(stackTrace));
+        StringBuilder errorReport = new StringBuilder();
+        errorReport.append("************ CAUSE OF ERROR ************\n\n");
+        errorReport.append(stackTrace.toString());
+
+        errorReport.append("\n************ DEVICE INFORMATION ***********\n");
+        errorReport.append("Brand: ");
+        errorReport.append(Build.BRAND);
+        errorReport.append(LINE_SEPARATOR);
+        errorReport.append("Device: ");
+        errorReport.append(Build.DEVICE);
+        errorReport.append(LINE_SEPARATOR);
+        errorReport.append("Model: ");
+        errorReport.append(Build.MODEL);
+        errorReport.append(LINE_SEPARATOR);
+        errorReport.append("Id: ");
+        errorReport.append(Build.ID);
+        errorReport.append(LINE_SEPARATOR);
+        errorReport.append("Product: ");
+        errorReport.append(Build.PRODUCT);
+        errorReport.append(LINE_SEPARATOR);
+public class HandlerActivity extends AppCompatActivity {
+
+    private String problem;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_exception);
+        TextView log = findViewById(R.id.logText);
+
+        Intent i= getIntent();
+        problem = i.getStringExtra("error");
+
+        problem+="\n\n"+"Mohon maaf, kami mendeteksi adanya masalah.\nSilahkan laporkan rincian kejadian ke MIS. \n\nTerima Kasih";
+
+        log.setText(problem);
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+    }
+}
+
+
+<variable
+            name="kartubarang"
+            type="ams.dcoredb.KartuBarang" />
+
+        <variable
+            name="vh"
+            type="ams.ui.kartubarang.adapters.KartuBarangAdapter.KartuBarangViewHolder" />

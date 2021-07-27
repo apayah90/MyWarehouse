@@ -1,0 +1,267 @@
+ protected ProgressDialog progressDialog;
+
+    private CompositeDisposable mCompositeDisposable;
+
+    private WeakReference<Context> mContext;
+
+    private SessionHandler sessionHandler;
+    private DBHelper dbHelper;
+
+    public BaseViewModel(Context context) {
+        this.mContext = new WeakReference<>(context);
+        this.sessionHandler = new SessionHandler(context);
+        this.dbHelper = DBHelper.getInsstance(context);
+        this.progressDialog = new ProgressDialog(context);
+        this.mCompositeDisposable = new CompositeDisposable();
+    }
+
+    @Override
+    protected void onCleared() {
+        mCompositeDisposable.dispose();
+        super.onCleared();
+    }
+
+    public SessionHandler getSessionHandler() {
+        return sessionHandler;
+
+public void refresh(String c_Kodecab,String periodFrom, String periodTo, String c_Iteno) {
+        if (kartuBarangHandler != null)
+            kartuBarangHandler.onStartGetKartuBarang();
+
+        if (kartuBarangDisposable != null && !kartuBarangDisposable.isDisposed())
+        getCompositeDisposable().remove(kartuBarangDisposable);
+
+public abstract class BaseActivity<T extends ViewDataBinding, V extends BaseViewModel> extends AppCompatActivity {
+
+    private T mViewDataBinding;
+    private V mViewModel;
+
+    /**
+     * Override for set binding variable
+     *
+     * @return variable id
+     */
+    public abstract int getBindingVariable();
+
+    /**
+     * @return layout resource id
+     */
+    public abstract
+    @LayoutRes
+    int getLayoutId();
+
+    /**
+     * Override for set view model
+     *
+     * @return view model instance
+     */
+    public abstract V getViewModel();
+
+public class KartuBarangAdapter extends RecyclerView.Adapter<BaseViewHolder> {
+
+    private List<KartuBarang> listKartuBarang;
+    private OnItemClickListener listener;
+
+    public KartuBarangAdapter(List<KartuBarang> listKartu, OnItemClickListener lst) {
+        this.listener = lst;
+        this.listKartuBarang = listKartu;
+
+    }
+
+    @Override
+    public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        ListKartuBarangBinding binding = ListKartuBarangBinding.bind(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_kartu_barang, parent, false));
+        return new KartuBarangViewHolder(binding);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull BaseViewHolder holder, int position) {
+
+        holder.onBind(position);
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return listKartuBarang.size();
+    }
+
+
+    public interface OnItemClickListener {
+        void onItemClick(View v, int position);
+    }
+
+    public class KartuBarangViewHolder extends BaseViewHolder<ListKartuBarangBinding> {
+
+        private ListKartuBarangBinding binding;
+
+        KartuBarangViewHolder(final ListKartuBarangBinding binding) {
+            super(binding);
+
+
+public class KartuBarangActivity extends BaseActivity<ActivityKartuBarangBinding,
+        KartuBarangViewModel> implements KartuBarangAdapter.OnItemClickListener, KartuBarangHandler {
+
+    private static final String TAG = KartuBarangActivity.class.getSimpleName();
+
+    private KartuBarangViewModel viewModel;
+    private ActivityKartuBarangBinding binding;
+    private List<KartuBarang> kartuBarangList= new ArrayList<>();
+    private KartuBarangAdapter adapter;
+    private MaterialDatePicker.Builder<Pair<Pair, Pair>>  materialDatePicker;
+    private Calendar currentDate = Calendar.getInstance();
+    private int pos;
+
+    @Override
+    public int getBindingVariable() {
+        return BR.vm;
+    }
+
+    @Override
+    public int getLayoutId() {
+        return R.layout.activity_kartu_barang;
+    }
+
+    @Override
+    public KartuBarangViewModel getViewModel() {
+        return viewModel;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+
+        viewModel = new KartuBarangViewModel(this, this);
+        super.onCreate(savedInstanceState);
+
+
+        binding = getViewDataBinding();
+        binding.setVm(viewModel);
+
+        setUp();
+
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void setUp() {
+
+//        binding.btnDateTo.setText(""+Utils.formatDate(currentDate.getTime(), "dd/MM/yyyy"));
+        binding.rvKartuBarang.setHasFixedSize(true);
+        binding.rvKartuBarang.setLayoutManager(new LinearLayoutManager(this));
+        binding.rvKartuBarang.setItemAnimator(new DefaultItemAnimator());
+        binding.rvKartuBarang.addItemDecoration(new DividerItemDecoration(this,
+                LinearLayoutManager.VERTICAL));
+        adapter = new KartuBarangAdapter(kartuBarangList, this);
+        Log.d("TAG", "setUp: "+kartuBarangList);
+        binding.rvKartuBarang.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+//        viewModel.refresh("a", "b", "C", "D");
+        Log.d("TAG", "onResume: ");
+    }
+
+    @Override
+    public void onItemClick(View v, int position) {
+        pos = position;
+        KartuBarang kartuBarang = kartuBarangList.get(pos);
+            viewModel.startKartuBarang(kartuBarang);
+
+        Log.d(TAG, "onItemClick: "+kartuBarangList.get(pos).toString());
+    }
+
+    public static void startThisActivity(Context context) {
+        Intent intent = new Intent(context, KartuBarangActivity.class);
+        context.startActivity(intent);
+    }
+
+    private void goToDetailKartuBarang(KartuBarang kartuBarang) {
+
+
+        String kodecab = viewModel.kodecab.get();
+        String period = viewModel.dateFrom.get()+ " - " + viewModel.dateTo.get();
+        Log.d(TAG, "goToDetailKartuBarang: "+kodecab);
+//        DetailKartuBarangActivity.startThisActivity(this, kartuBarang.getC_ITNAM(),
+//                kodecab, period, kartuBarang.getC_UNDES(), kartuBarang.getD_DATETIME(),
+//                kartuBarang.getDOCUMENTS(), kartuBarang.getNOREF(), kartuBarang.getC_BATCH(),
+//                kartuBarang.getC_CUNAM(), kartuBarang.getD_EXPIRED(),
+//                kartuBarang.getC_STATUS(), kartuBarang.getC_DOCTYPE(),
+//                kartuBarang.getN_TOTAL_IN_GOOD(), kartuBarang.getN_TOTAL_OUT_GOOD(),
+//                kartuBarang.getN_TOTAL_SISA_GOOD());
+
+    }
+
+    @Override
+    public void onStartGetKartuBarang() {
+        kartuBarangList.clear();
+        adapter.notifyDataSetChanged();
+    }
+
+    private void sortByLuarKota() {
+
+        Collections.sort(plList, (p1, p2) -> {
+            Log.d(TAG, "LuarKota p1=" + p1.getC_LDKOTA() + ",p2=" + p2.getC_LDKOTA());
+
+            int isP1Cito = p1.getC_DELIVERY().equals("C") ? 1 : 0;
+            int isP2Cito = p2.getC_DELIVERY().equals("C") ? 1 : 0;
+
+            int sizeCmp = Integer.valueOf(isP2Cito).compareTo(isP1Cito);
+            if (sizeCmp != 0) {
+                return sizeCmp;
+            }
+
+            int nullCompared = Integer.compare(p1.getC_LDKOTA().equals("null") ? 1 : 0,
+                    p2.getC_LDKOTA().equals("null") ? 1 : 0);
+
+            if (nullCompared != 0)
+                return nullCompared;
+
+
+            int isP1Dalam = p1.getC_LDKOTA().contains("Dalam Kota") ? 1 : 0;
+            int isP2Dalam = p2.getC_LDKOTA().contains("Dalam Kota") ? 1 : 0;
+
+            return Integer.valueOf(isP1Dalam).compareTo(isP2Dalam);
+        });
+
+
+        adapter.notifyDataSetChanged();
+    }
+
+
+ dialog = CustomDialog.get(context)
+                .title("Adj Relocation Batch Good")
+                .fullscreen()
+                .addView(binding.getRoot())
+                .cancelable(false);
+
+
+                @NonNull
+                    @Override
+                    public BaseViewHolder<?> onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+                        ListAdjustmentBinding binding =
+                                ListAdjustmentBinding.inflate(LayoutInflater.from(viewGroup.getContext()), viewGroup, false);
+                        return new AdjustmentViewHolder(binding);
+                    }
+
+
+
+ class AdjustmentViewHolder extends BaseViewHolder<ListAdjustmentBinding> {
+
+        public AdjustmentViewHolder(ListAdjustmentBinding binding) {
+            super(binding);
+        }
+
+        @Override
+        public void onBind(int position) {
+            binding.setVm(new ListAdjustmentBatchViewModel(new AdjustmentBatch(showList.get(position)), false));
+            binding.executePendingBindings();
+
+            binding.getRoot().setOnClickListener(v -> {
+                listener.onClick(position);
+            });
+        }
+    }
