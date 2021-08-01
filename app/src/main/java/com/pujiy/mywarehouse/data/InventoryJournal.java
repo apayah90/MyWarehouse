@@ -15,7 +15,43 @@ public class InventoryJournal {
     private String COLLECTION;
     private String DATE_EXPIRED;
     private String BALANCE;
+    private String BALANCEBAD;
     private String RESULT;
+    private String RESULTBAD;
+    private String ITEM_NO;
+    private String ISBADSTOCK;
+
+    public String getISBADSTOCK() {
+        return ISBADSTOCK;
+    }
+
+    public void setISBADSTOCK(String ISBADSTOCK) {
+        this.ISBADSTOCK = ISBADSTOCK;
+    }
+
+    public String getBALANCEBAD() {
+        return BALANCEBAD;
+    }
+
+    public void setBALANCEBAD(String BALANCEBAD) {
+        this.BALANCEBAD = BALANCEBAD;
+    }
+
+    public String getRESULTBAD() {
+        return RESULTBAD;
+    }
+
+    public void setRESULTBAD(String RESULTBAD) {
+        this.RESULTBAD = RESULTBAD;
+    }
+
+    public String getITEM_NO() {
+        return ITEM_NO;
+    }
+
+    public void setITEM_NO(String ITEM_NO) {
+        this.ITEM_NO = ITEM_NO;
+    }
 
     public String getDATE() {
         return DATE;

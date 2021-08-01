@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.databinding.ObservableBoolean;
 import androidx.databinding.ObservableField;
@@ -25,6 +26,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -56,6 +58,20 @@ public class InventoryJournalViewModel extends BaseViewModel {
     public ObservableField<String> dateExpired = new ObservableField<>();
     private ObservableBoolean empty = new ObservableBoolean(true);
     public ObservableField<InventoryJournalBatch> listBatch = new ObservableField<>();
+    public ObservableField<String> stokAwal = new ObservableField<>();
+    public ObservableField<String> stokAwalBad = new ObservableField<>();
+    public ObservableField<Boolean> badStock = new ObservableField<>(false);
+    public ObservableField<String> productIteno = new ObservableField<>();
+    public ObservableField<String> productItnam = new ObservableField<>();
+    public ObservableField<String> productUndes = new ObservableField<>();
+    public ObservableField<String> branch = new ObservableField<>();
+    public ObservableField<String> totalGoodStockIn = new ObservableField<>();
+    public ObservableField<String> totalGoodStockOut = new ObservableField<>();
+    public ObservableField<String> totalBadStockIn = new ObservableField<>();
+    public ObservableField<String> totalBadStockOut = new ObservableField<>();
+    public ObservableField<String> totalGoodStockSisa = new ObservableField<>();
+    public ObservableField<String> totalBadStockSisa = new ObservableField<>();
+
 
     private InventoryJournalHandler inventoryJournalHandler;
     private Disposable inventoryJournalDisposable;
@@ -74,6 +90,8 @@ public class InventoryJournalViewModel extends BaseViewModel {
         this.empty = empty;
     }
 
+
+
     public InventoryJournalViewModel(Context context, InventoryJournalHandler inventoryJournalHandler) {
         super(context);
         this.inventoryJournalHandler = inventoryJournalHandler;
@@ -88,6 +106,14 @@ public class InventoryJournalViewModel extends BaseViewModel {
                 .fullscreen()
                 .addView(binding.getRoot())
                 .cancelable(true);
+
+
+    }
+
+    public void onSearch(CharSequence s, int start, int before, int count) {
+        productIteno.set(s.toString());
+        Toast.makeText(((BaseActivity) getContext()), ""+s.toString(), Toast.LENGTH_SHORT).show();
+
     }
 
     public void refresh(String branch, String itemName) {
@@ -101,6 +127,23 @@ public class InventoryJournalViewModel extends BaseViewModel {
                 .subscribe(inventoryJournalList -> {
                     if (inventoryJournalHandler != null)
                         inventoryJournalHandler.onGetInventoryJournal(inventoryJournalList);
+                    productItnam.set(inventoryJournalList.get(0).getITEM_NO() + " - " +
+                            inventoryJournalList.get(0).getITEM_NAME());
+                    productUndes.set(inventoryJournalList.get(0).getPACKAGING());
+
+
+//                    List<DataObj> arr_filteredlist = new ArrayList<>();
+//                    for(DataObj e : arr_datalist) {
+//                        if(e.i_age > 32 && e.str_address.equals("city2")) {
+//                            arr_filteredlist.add(e);
+//                        }
+//                    }
+
+
+//                    stokAwal.set(inventoryJournalList.get(0).getIN_GOOD());
+//                    stokAwalBad.set(kartuBarangList.get(0).getIN_BAD());
+                    stokAwal.set(inventoryJournalList.get(0).getRESULT());
+                    stokAwalBad.set(inventoryJournalList.get(0).getRESULTBAD());
 
                     Log.d(TAG, "refresh: "+inventoryJournalList.get(0).getDOCUMENT());
 
@@ -117,6 +160,24 @@ public class InventoryJournalViewModel extends BaseViewModel {
     }
 
 
+    public void onSearchKartuBarangClick() {
+
+//        InventoryJournalHandler.onChangedType(badStock.get());
+        refresh(branch.get(), productIteno.get());
+
+    }
+
+    public void onGoodStockClick() {
+        badStock.set(false);
+
+    }
+
+    public void onBadStockClick() {
+        badStock.set(true);
+
+    }
+
+
     public void onAddBatchClick() {
         if (inventoryJournalHandler != null)
             inventoryJournalHandler.goToSelectBatch();
@@ -126,16 +187,19 @@ public class InventoryJournalViewModel extends BaseViewModel {
     public Observable<List<InventoryJournal>> getInventoryJournal(String branch, String itemName) {
         String url = "http://192.168.43.205/my-warehouse-web/public/api/getAllDataInventoryJournal";
 
+
         Map<String, String> param = new HashMap<>();
 
-
+//        Collection<String> filtered = Collections2.filter(list,
+//                Predicates.containsPattern("How"));
         return Rx2AndroidNetworking.get(url)
                 .build()
                 .getJSONObjectObservable()
                 .map(jsonObject -> {
                     List<InventoryJournal> listInventoryJournal = new ArrayList<>();
-                    JSONArray dataRow = jsonObject.getJSONArray("data");
+                    List<InventoryJournal> listBadStock = new ArrayList<>();
 
+                    JSONArray dataRow = jsonObject.getJSONArray("data");
 
 
                     for (int i = 0; i < dataRow.length(); i++) {
@@ -156,8 +220,12 @@ public class InventoryJournalViewModel extends BaseViewModel {
                             inventoryJournal.setCOLLECTION(obj.getString("collection"));
                             inventoryJournal.setDATE_EXPIRED(obj.getString("date_expired"));
 
+
+                            // Calculate Good Stock
                             int in = Integer.parseInt(inventoryJournal.getFINE_IN());
                             int out = Integer.parseInt(inventoryJournal.getFINE_OUT());
+                            double inBad = Double.parseDouble(inventoryJournal.getPOOR_IN());
+                            double outBad = Double.parseDouble(inventoryJournal.getPOOR_OUT());
                             int result = in - out;
                             inventoryJournal.setRESULT(String.valueOf(result));
 
@@ -169,6 +237,37 @@ public class InventoryJournalViewModel extends BaseViewModel {
                                 int newBalance = Integer.parseInt(listInventoryJournal.get(i-1).getBALANCE());
                                 newBalance += result;
                                 inventoryJournal.setBALANCE(String.valueOf(newBalance));
+                            }
+
+                            //Calculate Bad Stock
+                            double resultBad = inBad - outBad;
+                            inventoryJournal.setRESULTBAD(String.valueOf(resultBad));
+
+                            double balanceBad = 0;
+                            if (i == 0) {
+                                balanceBad += resultBad;
+                                inventoryJournal.setBALANCEBAD(String.valueOf(balanceBad));
+                            } else {
+                                double newBalanceBad = Double.parseDouble(listInventoryJournal.get(i-1).getBALANCEBAD());
+                                newBalanceBad += resultBad;
+                                inventoryJournal.setBALANCEBAD(String.valueOf(newBalanceBad));
+                            }
+
+
+                            if (i == 0) {
+                                inventoryJournal.setISBADSTOCK("1");
+                            }
+                            else if (i > 0) {
+                                //BadStock
+                                if(inBad == 0.0 && outBad == 0.0) {
+                                    inventoryJournal.setISBADSTOCK("0");
+
+                                }
+                                else {
+                                    inventoryJournal.setISBADSTOCK("1");
+                                    Log.d(TAG, "getKartuBarang: BadStock "+i);
+                                    Log.d(TAG, "getKartuBarang: BadStockSize "+ listBadStock.size());
+                                }
                             }
 
                             listInventoryJournal.add(inventoryJournal);

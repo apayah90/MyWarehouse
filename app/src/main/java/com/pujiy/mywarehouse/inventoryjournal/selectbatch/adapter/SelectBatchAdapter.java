@@ -50,8 +50,6 @@ public class SelectBatchAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
         @Override
         public void onBind(int position) {
-            this.binding.setVh(this);
-            this.binding.txtInventoryJournalBatch.setText(listBatch.get(position));
         }
     }
 }

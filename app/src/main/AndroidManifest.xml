@@ -17,7 +17,8 @@
         android:theme="@style/Theme.MyWarehouse"
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
-        <activity android:name=".inventoryjournal.selectbatch.SelectBatchActivity"></activity>
+        <activity android:name=".inventoryjournal.expandable.ExpandableRecyclerViewActivity"></activity>
+        <activity android:name=".inventoryjournal.selectbatch.SelectBatchActivity" />
         <activity android:name=".exception.HandlerActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>

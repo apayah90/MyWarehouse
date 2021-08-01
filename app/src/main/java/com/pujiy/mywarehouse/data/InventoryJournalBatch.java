@@ -4,8 +4,6 @@ public class InventoryJournalBatch {
 
     private String BATCH;
 
-
-
     public String getBATCH() {
         return BATCH;
     }

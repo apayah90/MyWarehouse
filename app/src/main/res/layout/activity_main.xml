@@ -93,6 +93,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Product Code"
+                    android:onTextChanged="@{vm::onSearch}"
                     android:maxLines="1" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -101,15 +102,16 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/btn_submit"
+                android:onClick="@{() -> vm.onSearchKartuBarangClick()}"
                 android:text="Search"
                 android:textColor="@color/white"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
+                app:layout_constraintTop_toBottomOf="@+id/btn_type" />
 
             <ImageView
                 android:id="@+id/imageView"
@@ -134,21 +136,18 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/imageView"
                 app:layout_constraintTop_toBottomOf="@+id/txt_product_name"
-                tools:text="2021-07-21"
-                android:visibility="@{vm.empty ? View.GONE : View.VISIBLE}"
-                tools:visibility="gone"/>
+                tools:text="2021-07-21" />
 
             <TextView
                 android:id="@+id/txt_product_name"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:visibility="@{vm.empty ? View.GONE : View.VISIBLE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/imageView"
@@ -179,7 +178,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/rv_inventory_journal"
+                app:layout_constraintTop_toBottomOf="@+id/rv_kartu_barang"
                 app:layout_constraintVertical_bias="0.0">
 
                 <TableRow android:layout_width="match_parent">
@@ -192,8 +191,8 @@
                         android:layout_height="wrap_content"
                         android:layout_span="2"
                         android:background="#18B182"
-                        android:padding="10dp"
-                        android:text="TOTAL GOOD STOCK"
+                        android:padding="8dp"
+                        android:text="@{vm.badStock == false ? `TOTAL GOOD STOCK` : `TOTAL BAD STOCK`}"
                         android:textAlignment="center"
                         android:textColor="#FFFFFF"
                         android:textSize="16sp"
@@ -216,6 +215,7 @@
                         android:background="@drawable/bg_row_table_gray"
                         android:paddingTop="8dp"
                         android:paddingBottom="8dp"
+                        android:text="@{vm.badStock == false ? `IN \n `+ vm.totalGoodStockIn : `IN \n `+ vm.totalBadStockIn}"
                         android:textAlignment="center"
                         android:textColor="#000000"
                         android:textSize="16sp"
@@ -232,6 +232,7 @@
                         android:background="@drawable/bg_row_table_gray"
                         android:paddingTop="8dp"
                         android:paddingBottom="8dp"
+                        android:text="@{vm.badStock == false ? `OUT \n `+ vm.totalGoodStockOut : `OUT \n `+ vm.totalBadStockOut}"
                         android:textAlignment="center"
                         android:textColor="#000000"
                         android:textSize="16sp"
@@ -240,42 +241,7 @@
 
                 </TableRow>
 
-                <TableRow>
 
-                    <TextView
-
-                        android:id="@+id/txt_total_good_stock_sisa"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_column="0"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_row_table_gray"
-                        android:paddingTop="8dp"
-                        android:paddingBottom="8dp"
-                        android:textAlignment="center"
-                        android:textColor="#000000"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        tools:text="SISA \n 1234567890" />
-
-                    <TextView
-
-                        android:id="@+id/txt_total_good_stock_booked"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_column="1"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_row_table_gray"
-                        android:paddingTop="8dp"
-                        android:paddingBottom="8dp"
-                        android:text="BOOKED \n 0"
-                        android:textAlignment="center"
-                        android:textColor="#000000"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        tools:text="BOOKED \n 1234567890" />
-
-                </TableRow>
 
             </TableLayout>
 
@@ -305,7 +271,7 @@
                         android:layout_span="4"
                         android:background="#C4C4C4"
                         android:padding="16dp"
-                        android:text="TOTAL GOOD RIT"
+                        android:text="SALDO"
                         android:textAlignment="center"
                         android:textColor="#000000"
                         android:textSize="16sp"
@@ -319,13 +285,14 @@
 
                     <TextView
 
-                        android:id="@+id/txt_total_good_rit_in"
+                        android:id="@+id/txt_saldo_awal"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_column="0"
                         android:layout_weight="1"
                         android:background="@drawable/bg_row_table_gray"
                         android:padding="16dp"
+                        android:text="@{vm.badStock == false ? `SALDO AWAL \n `+ vm.stokAwal : `SALDO AWAL \n `+ vm.stokAwalBad }"
                         android:textAlignment="center"
                         android:textColor="#000000"
                         android:textSize="16sp"
@@ -333,13 +300,14 @@
 
                     <TextView
 
-                        android:id="@+id/txt_total_good_rit_out"
+                        android:id="@+id/txt_saldo_akhir"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_column="1"
                         android:layout_weight="1"
                         android:background="@drawable/bg_row_table_gray"
                         android:padding="16dp"
+                        android:text="@{vm.badStock == false ? `SALDO AKHIR \n `+vm.totalGoodStockSisa : `SALDO AKHIR \n `+vm.totalBadStockSisa}"
                         android:textAlignment="center"
                         android:textColor="#000000"
                         android:textSize="16sp"
@@ -387,11 +355,11 @@
                 android:id="@+id/tableLayout3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 android:stretchColumns="*"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/txt_undes">
+                app:layout_constraintTop_toBottomOf="@+id/txt_batch">
 
                 <TableRow android:layout_width="match_parent">
 
@@ -401,7 +369,7 @@
                         android:id="@+id/tv_stock_awal"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_span="2"
+                        android:layout_span="1"
                         android:background="#39A2DB"
                         android:padding="16dp"
                         android:text="STOCK AWAL"
@@ -425,31 +393,15 @@
                         android:background="@drawable/bg_row_table_gray"
                         android:paddingTop="8dp"
                         android:paddingBottom="8dp"
+                        android:text="@{vm.badStock == false ? `IN \n `+ vm.stokAwal : `IN \n `+ vm.stokAwalBad}"
                         android:textAlignment="center"
                         android:textColor="#000000"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        tools:text="IN \n 123" />
+                        tools:text="IN \n 1234567890" />
 
-                    <TextView
-
-                        android:id="@+id/txt_total_stock_awal_out"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_column="1"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_row_table_gray"
-                        android:paddingTop="8dp"
-                        android:paddingBottom="8dp"
-                        android:textAlignment="center"
-                        android:textColor="#000000"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        tools:text="OUT \n 123" />
 
                 </TableRow>
-
-
 
 
             </TableLayout>
@@ -459,23 +411,91 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="80dp"
+                android:background="@{vm.badStock == false ? @color/selected : @color/colorDivider }"
+                android:onClick="@{() -> vm.onGoodStockClick()}"
                 android:text="GOOD STOCK"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btn_submit" />
+                app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
+
+            <Button
+                android:id="@+id/button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="80dp"
+                android:background="@{vm.badStock == true ? @color/savedItem : @color/colorDivider }"
+                android:onClick="@{() -> vm.onBadStockClick()}"
+
+
+                android:text="BAD STOCK"
+                app:layout_constraintStart_toEndOf="@+id/btn_type"
+                app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
 
             <Button
                 android:id="@+id/btn_batch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="80dp"
                 android:layout_marginEnd="16dp"
+                android:enabled="false"
                 android:text="All Batch"
-                android:onClick="@{() -> vm.onAddBatchClick()}"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btn_submit" />
+                app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
 
+            <TextView
+                android:id="@+id/txt_type"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:textColor="@color/black"
+                android:textSize="16sp"
 
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/txt_undes" />
+
+            <TextView
+                android:id="@+id/txt_batch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/txt_expired"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/txt_type"
+                tools:text="All Batch"
+                />
+
+            <TextView
+                android:id="@+id/txt_expired"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:text="Expire: -"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:visibility="invisible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/txt_type" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textInputLayout">
+
+                <AutoCompleteTextView
+                    android:id="@+id/autoCompleteProduct"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+            </com.google.android.material.textfield.TextInputLayout>
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

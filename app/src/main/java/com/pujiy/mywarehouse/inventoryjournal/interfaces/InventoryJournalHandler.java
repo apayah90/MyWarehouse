@@ -12,6 +12,8 @@ public interface InventoryJournalHandler {
 
     void onStartInventoryJournal(InventoryJournal inventoryJournal);
 
+    void onChangedType(boolean isBadStock);
+
     void goToSelectBatch();
 
     void onError(Throwable throwable);

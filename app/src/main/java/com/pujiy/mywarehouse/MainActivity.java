@@ -37,6 +37,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, InventoryJou
 //    private MaterialDatePicker.Builder<Pair<Pair, Pair>>  materialDatePicker;
 //    private Calendar currentDate = Calendar.getInstance();
     private int pos;
+    public boolean isBadStock;
 
     @Override
     public int getBindingVariable() {
@@ -108,6 +109,12 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, InventoryJou
     @Override
     public void onStartInventoryJournal(InventoryJournal inventoryJournal) {
 
+    }
+
+    @Override
+    public void onChangedType(boolean isBadStock) {
+        this.isBadStock = isBadStock;
+        adapter.notifyDataSetChanged();
     }
 
     @Override
