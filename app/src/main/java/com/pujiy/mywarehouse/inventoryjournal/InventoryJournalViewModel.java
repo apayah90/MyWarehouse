@@ -79,6 +79,8 @@ public class InventoryJournalViewModel extends BaseViewModel {
     private final DialogInventoryJournalBatchViewModel viewModel;
     ArrayList<Integer> Numbers = new ArrayList<Integer>();
     HashSet<Integer> hashSetNumbers = new HashSet<Integer>(Numbers);
+    List<String> inventoryJournals = new ArrayList<>();
+    List<String> kartuBarangBatches = new ArrayList<>();
 
     private final DialogKartubarangSelectBatchBinding binding;
 
@@ -116,16 +118,17 @@ public class InventoryJournalViewModel extends BaseViewModel {
 
     }
 
-    public void refresh(String branch, String itemName) {
+    public void refresh() {
         if (inventoryJournalHandler != null)
             inventoryJournalHandler.onStartGetInventoryJournal();
 
         if (inventoryJournalDisposable != null && !inventoryJournalDisposable.isDisposed())
             getCompositeDisposable().remove(inventoryJournalDisposable);
 
-        inventoryJournalDisposable = getInventoryJournal(branch, itemName)
+        inventoryJournalDisposable = getInventoryJournal()
                 .subscribe(inventoryJournalList -> {
                     if (inventoryJournalHandler != null)
+//                        inventoryJournals.addAll(inventoryJournalList);
                         inventoryJournalHandler.onGetInventoryJournal(inventoryJournalList);
                     productItnam.set(inventoryJournalList.get(0).getITEM_NO() + " - " +
                             inventoryJournalList.get(0).getITEM_NAME());
@@ -146,7 +149,8 @@ public class InventoryJournalViewModel extends BaseViewModel {
                     stokAwalBad.set(inventoryJournalList.get(0).getRESULTBAD());
 
                     Log.d(TAG, "refresh: "+inventoryJournalList.get(0).getDOCUMENT());
-
+                    Toast.makeText(getContext(), "Success", Toast.LENGTH_SHORT).show();
+                    filterBatch();
 
 
                 }, throwable -> {
@@ -159,11 +163,29 @@ public class InventoryJournalViewModel extends BaseViewModel {
 
     }
 
+    public void filterBatch() {
+
+//        List<InventoryJournal> batchs = new ArrayList<>();
+
+//
+
+        HashSet<String> hashSetStrings = new HashSet<String>(inventoryJournals);
+        for (String strBatch : hashSetStrings)
+            kartuBarangBatches.add(strBatch);
+//            Log.d(TAG, "filterBatch: "+strBatch);
+    }
+
+    public void onAddBatchClick(View v) {
+        viewModel.showStockBatch(kartuBarangBatches);
+
+        dialog.show();
+    }
+
 
     public void onSearchKartuBarangClick() {
 
 //        InventoryJournalHandler.onChangedType(badStock.get());
-        refresh(branch.get(), productIteno.get());
+        refresh();
 
     }
 
@@ -178,13 +200,13 @@ public class InventoryJournalViewModel extends BaseViewModel {
     }
 
 
-    public void onAddBatchClick() {
-        if (inventoryJournalHandler != null)
-            inventoryJournalHandler.goToSelectBatch();
-    }
+//    public void onAddBatchClick() {
+//        if (inventoryJournalHandler != null)
+//            inventoryJournalHandler.goToSelectBatch();
+//    }
 
 
-    public Observable<List<InventoryJournal>> getInventoryJournal(String branch, String itemName) {
+    public Observable<List<InventoryJournal>> getInventoryJournal() {
         String url = "http://192.168.43.205/my-warehouse-web/public/api/getAllDataInventoryJournal";
 
 
@@ -210,15 +232,40 @@ public class InventoryJournalViewModel extends BaseViewModel {
                             inventoryJournal.setDATE(obj.getString("date"));
                             inventoryJournal.setCUSTOMER(obj.getString("customer"));
                             inventoryJournal.setDOCUMENT(obj.getString("document"));
-                            inventoryJournal.setFINE_IN(obj.getString("fine_in"));
-                            inventoryJournal.setFINE_OUT(obj.getString("fine_out"));
-                            inventoryJournal.setPOOR_IN(obj.getString("poor_in"));
-                            inventoryJournal.setPOOR_OUT(obj.getString("poor_out"));
+//                            inventoryJournal.setFINE_IN(obj.getString("fine_in"));
+//                            inventoryJournal.setFINE_OUT(obj.getString("fine_out"));
+//                            inventoryJournal.setPOOR_IN(obj.getString("poor_in"));
+//                            inventoryJournal.setPOOR_OUT(obj.getString("poor_out"));
                             inventoryJournal.setPIC(obj.getString("pic"));
                             inventoryJournal.setITEM_NAME(obj.getString("item_name"));
                             inventoryJournal.setPACKAGING(obj.getString("packaging"));
                             inventoryJournal.setCOLLECTION(obj.getString("collection"));
                             inventoryJournal.setDATE_EXPIRED(obj.getString("date_expired"));
+
+                            if (obj.isNull("fine_in")) {
+                                inventoryJournal.setFINE_IN("0");
+                            } else {
+                                inventoryJournal.setFINE_IN(obj.getString("fine_in"));
+                            }
+
+                            if (obj.isNull("fine_out")) {
+                                inventoryJournal.setFINE_OUT("0");
+                            } else {
+                                inventoryJournal.setFINE_OUT(obj.getString("fine_out"));
+                            }
+
+                            if (obj.isNull("poor_in")) {
+                                inventoryJournal.setPOOR_IN("0");
+                            } else {
+                                inventoryJournal.setPOOR_IN(obj.getString("poor_in"));
+                            }
+
+                            if (obj.isNull("poor_out")) {
+                                inventoryJournal.setPOOR_OUT("0.00");
+                            } else {
+                                inventoryJournal.setPOOR_OUT(obj.getString("poor_out"));
+                            }
+
 
 
                             // Calculate Good Stock
@@ -270,6 +317,7 @@ public class InventoryJournalViewModel extends BaseViewModel {
                                 }
                             }
 
+                            inventoryJournals.add(inventoryJournal.getCOLLECTION());
                             listInventoryJournal.add(inventoryJournal);
                         }
                         catch (JSONException e) {

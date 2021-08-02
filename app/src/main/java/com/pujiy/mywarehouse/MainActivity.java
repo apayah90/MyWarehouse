@@ -87,7 +87,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, InventoryJou
     @Override
     protected void onResume() {
         super.onResume();
-        viewModel.refresh("PUSAT", "Headset");
+//        viewModel.refresh();
     }
 
     @Override

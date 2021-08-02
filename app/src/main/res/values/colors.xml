@@ -9,6 +9,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="selected">#18FFFF</color>
     <color name="colorDivider">#959595</color>
+    <color name="savedItem">#69F0AE</color>
+
 
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303f9f</color>
