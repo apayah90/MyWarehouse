@@ -265,3 +265,9 @@ public class KartuBarangActivity extends BaseActivity<ActivityKartuBarangBinding
             });
         }
     }
+
+
+    karna dia butuh suatu kondisi makanya setvm
+
+    activity kartu barang -> kartubarang view model -> dialog select batch -> dialog list
+    activity kartu barang -> kartubarang view model -> Dialog batch view model -> Dialog batch adapter

@@ -54,7 +54,7 @@ public class DialogInventoryJournalBatchAdapter extends RecyclerView.Adapter<Bas
 
         @Override
         public void onBind(int position) {
-            this.binding.setVh(this);
+//            this.binding.setVh(this);
             this.binding.txtBatch.setText(listInventoryJournalBatch.get(position));
 
         }

@@ -8,6 +8,8 @@ import android.widget.Toast;
 
 import androidx.databinding.ObservableBoolean;
 import androidx.databinding.ObservableField;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.androidnetworking.error.ANError;
 import com.pujiy.mywarehouse.CustomDialog;
@@ -19,6 +21,7 @@ import com.pujiy.mywarehouse.databinding.DialogKartubarangSelectBatchBinding;
 import com.pujiy.mywarehouse.inventoryjournal.dialog.DialogInventoryJournalBatchViewModel;
 import com.pujiy.mywarehouse.inventoryjournal.interfaces.InventoryJournalHandler;
 import com.pujiy.mywarehouse.inventoryjournal.selectbatch.SelectBatchActivity;
+import com.pujiy.mywarehouse.testbaseadapter.DialogBatchViewModel;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 
 import org.json.JSONArray;
@@ -76,7 +79,7 @@ public class InventoryJournalViewModel extends BaseViewModel {
     private InventoryJournalHandler inventoryJournalHandler;
     private Disposable inventoryJournalDisposable;
     private final CustomDialog dialog;
-    private final DialogInventoryJournalBatchViewModel viewModel;
+    private final DialogBatchViewModel viewModel;
     ArrayList<Integer> Numbers = new ArrayList<Integer>();
     HashSet<Integer> hashSetNumbers = new HashSet<Integer>(Numbers);
     List<String> inventoryJournals = new ArrayList<>();
@@ -101,7 +104,7 @@ public class InventoryJournalViewModel extends BaseViewModel {
         binding =
                 DialogKartubarangSelectBatchBinding.inflate(LayoutInflater.from(context), null);
 
-        viewModel = new DialogInventoryJournalBatchViewModel();
+        viewModel = new DialogBatchViewModel(context);
 
         dialog = CustomDialog.get(context)
                 .title("Select Batch")
@@ -109,6 +112,9 @@ public class InventoryJournalViewModel extends BaseViewModel {
                 .addView(binding.getRoot())
                 .cancelable(true);
 
+        binding.setVm(viewModel);
+
+        binding.rvBatch.addItemDecoration(new DividerItemDecoration(context, LinearLayoutManager.VERTICAL));
 
     }
 
@@ -176,7 +182,7 @@ public class InventoryJournalViewModel extends BaseViewModel {
     }
 
     public void onAddBatchClick(View v) {
-        viewModel.showStockBatch(kartuBarangBatches);
+        viewModel.showStockBatch();
 
         dialog.show();
     }
