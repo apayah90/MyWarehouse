@@ -19,6 +19,8 @@ public class InventoryJournalExpandableAdapter extends RecyclerView.Adapter<Inve
 
     private ArrayList<InventoryJournalParent> parentDataList;
 
+    private ArrayList<InventoryJournalParent> parentaDataList;
+
     public InventoryJournalExpandableAdapter(ArrayList<InventoryJournalParent> parentDataList) {
         this.parentDataList = parentDataList;
     }
