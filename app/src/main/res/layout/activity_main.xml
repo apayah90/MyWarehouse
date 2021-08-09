@@ -24,79 +24,6 @@
             android:background="#FFFFFF">
 
 
-            <TextView
-                android:id="@+id/textView3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:text="Period From:"
-                android:textSize="16sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <Button
-                android:id="@+id/btn_date_from"
-                android:layout_width="0dp"
-                android:layout_height="32dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:background="@drawable/btn_date"
-                android:fadeScrollbars="true"
-                android:drawableStart="@drawable/ic_baseline_date_range_24"
-                android:textAlignment="textStart"
-                android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="@+id/textView3"
-                app:layout_constraintTop_toBottomOf="@+id/textView3"
-                app:layout_constraintVertical_bias="0.0" />
-
-            <TextView
-                android:id="@+id/textView4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="To:"
-                android:textSize="16sp"
-                app:layout_constraintStart_toStartOf="@+id/textView3"
-                app:layout_constraintTop_toBottomOf="@+id/btn_date_from" />
-
-            <Button
-                android:id="@+id/btn_date_to"
-                android:layout_width="0dp"
-                android:layout_height="32dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:background="@drawable/btn_date"
-                android:drawableStart="@drawable/ic_baseline_date_range_24"
-                android:textAlignment="textStart"
-                android:textSize="16sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/textView4"
-                app:layout_constraintTop_toBottomOf="@+id/textView4" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textInputLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btn_date_to">
-
-                <EditText
-                    android:id="@+id/search_product_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Product Code"
-                    android:onTextChanged="@{vm::onSearch}"
-                    android:maxLines="1" />
-            </com.google.android.material.textfield.TextInputLayout>
-
             <Button
                 android:id="@+id/btn_submit"
                 android:layout_width="0dp"
@@ -179,7 +106,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/rv_inventory_journal"
-                app:layout_constraintVertical_bias="0.0">
+                app:layout_constraintVertical_bias="0.0"
+                tools:visibility="gone">
 
                 <TableRow android:layout_width="match_parent">
 
@@ -243,7 +171,6 @@
                 </TableRow>
 
 
-
             </TableLayout>
 
             <TableLayout
@@ -259,7 +186,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tableLayout"
-                app:layout_constraintVertical_bias="0.0">
+                app:layout_constraintVertical_bias="0.0"
+                tools:visibility="gone">
 
                 <TableRow android:layout_width="match_parent">
 
@@ -349,8 +277,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@+id/imageView1"
+                tools:itemCount="2"
                 tools:listitem="@layout/list_inventory_journal"
-                tools:itemCount="2"/>
+                tools:visibility="gone" />
 
             <TableLayout
                 android:id="@+id/tableLayout3"
@@ -412,26 +341,26 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="80dp"
+                android:layout_marginTop="16dp"
                 android:background="@{vm.badStock == false ? @color/selected : @color/colorDivider }"
                 android:onClick="@{() -> vm.onGoodStockClick()}"
                 android:text="GOOD STOCK"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <Button
                 android:id="@+id/button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="80dp"
+                android:layout_marginTop="16dp"
                 android:background="@{vm.badStock == true ? @color/savedItem : @color/colorDivider }"
+
+
                 android:onClick="@{() -> vm.onBadStockClick()}"
-
-
                 android:text="BAD STOCK"
                 app:layout_constraintStart_toEndOf="@+id/btn_type"
-                app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <Button
                 android:id="@+id/btn_batch"
@@ -484,21 +413,16 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/txt_type" />
 
-            <com.google.android.material.textfield.TextInputLayout
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_inventory_journal_detail_per_batch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textInputLayout">
-
-                <AutoCompleteTextView
-                    android:id="@+id/autoCompleteProduct"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-            </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginBottom="32dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/imageView1"
+                app:layout_constraintVertical_bias="0.0"
+                tools:itemCount="2"
+                tools:listitem="@layout/list_inventory_journal" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

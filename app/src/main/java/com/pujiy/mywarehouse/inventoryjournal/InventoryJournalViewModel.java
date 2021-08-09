@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.androidnetworking.error.ANError;
+import com.androidnetworking.utils.Utils;
 import com.pujiy.mywarehouse.CustomDialog;
 import com.pujiy.mywarehouse.base.BaseActivity;
 import com.pujiy.mywarehouse.base.BaseViewModel;
@@ -41,7 +42,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class InventoryJournalViewModel extends BaseViewModel {
+public class InventoryJournalViewModel extends BaseViewModel implements  DialogBatchViewModel.Listener {
 
     private final String TAG = InventoryJournalViewModel.class.getSimpleName();
 
@@ -74,7 +75,20 @@ public class InventoryJournalViewModel extends BaseViewModel {
     public ObservableField<String> totalBadStockOut = new ObservableField<>();
     public ObservableField<String> totalGoodStockSisa = new ObservableField<>();
     public ObservableField<String> totalBadStockSisa = new ObservableField<>();
+    public ObservableField<String> selectedBatch = new ObservableField<>();
 
+
+    public String totalInGood = "321";
+    public String totalOutGood = "26";
+    public String totalSisaGood = "295";
+    public String totalInBad = "15.0";
+    public String totalOutBad = "10.0";
+    public String totalSisaBad = "5.0";
+
+    public ArrayList<String> batchs = new ArrayList<>();
+    public ArrayList<String> batchsUnique = new ArrayList<>();
+
+    public int lastBalance;
 
     private InventoryJournalHandler inventoryJournalHandler;
     private Disposable inventoryJournalDisposable;
@@ -82,7 +96,7 @@ public class InventoryJournalViewModel extends BaseViewModel {
     private final DialogBatchViewModel viewModel;
     ArrayList<Integer> Numbers = new ArrayList<Integer>();
     HashSet<Integer> hashSetNumbers = new HashSet<Integer>(Numbers);
-    List<String> inventoryJournals = new ArrayList<>();
+    List<String> inventoryJournalsCollectionList = new ArrayList<>();
     List<String> kartuBarangBatches = new ArrayList<>();
 
     private final DialogKartubarangSelectBatchBinding binding;
@@ -104,7 +118,7 @@ public class InventoryJournalViewModel extends BaseViewModel {
         binding =
                 DialogKartubarangSelectBatchBinding.inflate(LayoutInflater.from(context), null);
 
-        viewModel = new DialogBatchViewModel(context);
+        viewModel = new DialogBatchViewModel(context, this);
 
         dialog = CustomDialog.get(context)
                 .title("Select Batch")
@@ -118,11 +132,11 @@ public class InventoryJournalViewModel extends BaseViewModel {
 
     }
 
-    public void onSearch(CharSequence s, int start, int before, int count) {
-        productIteno.set(s.toString());
-        Toast.makeText(((BaseActivity) getContext()), ""+s.toString(), Toast.LENGTH_SHORT).show();
-
-    }
+//    public void onSearch(CharSequence s, int start, int before, int count) {
+//        productIteno.set(s.toString());
+//        Toast.makeText(((BaseActivity) getContext()), ""+s.toString(), Toast.LENGTH_SHORT).show();
+//
+//    }
 
     public void refresh() {
         if (inventoryJournalHandler != null)
@@ -141,6 +155,8 @@ public class InventoryJournalViewModel extends BaseViewModel {
                     productUndes.set(inventoryJournalList.get(0).getPACKAGING());
 
 
+
+
 //                    List<DataObj> arr_filteredlist = new ArrayList<>();
 //                    for(DataObj e : arr_datalist) {
 //                        if(e.i_age > 32 && e.str_address.equals("city2")) {
@@ -151,12 +167,14 @@ public class InventoryJournalViewModel extends BaseViewModel {
 
 //                    stokAwal.set(inventoryJournalList.get(0).getIN_GOOD());
 //                    stokAwalBad.set(kartuBarangList.get(0).getIN_BAD());
-                    stokAwal.set(inventoryJournalList.get(0).getRESULT());
-                    stokAwalBad.set(inventoryJournalList.get(0).getRESULTBAD());
+//                    stokAwal.set(inventoryJournalList.get(0).getRESULT());
+//                    stokAwalBad.set(inventoryJournalList.get(0).getRESULTBAD());
+
+
 
                     Log.d(TAG, "refresh: "+inventoryJournalList.get(0).getDOCUMENT());
                     Toast.makeText(getContext(), "Success", Toast.LENGTH_SHORT).show();
-                    filterBatch();
+                    getBatchList(inventoryJournalList);
 
 
                 }, throwable -> {
@@ -169,84 +187,116 @@ public class InventoryJournalViewModel extends BaseViewModel {
 
     }
 
-    public void filterBatch() {
+//    public void filterBatch() {
 
 //        List<InventoryJournal> batchs = new ArrayList<>();
 
 //
 
-        HashSet<String> hashSetStrings = new HashSet<String>(inventoryJournals);
-        for (String strBatch : hashSetStrings)
-            kartuBarangBatches.add(strBatch);
+//        HashSet<String> hashSetStrings = new HashSet<String>(inventoryJournalsCollectionList);
+//        for (String strBatch : hashSetStrings)
+//            kartuBarangBatches.add(strBatch);
 //            Log.d(TAG, "filterBatch: "+strBatch);
-    }
+//    }
 
     public void onAddBatchClick(View v) {
-        viewModel.showStockBatch();
+        viewModel.showStockBatch(batchsUnique);
 
         dialog.show();
     }
 
 
-    public void onSearchKartuBarangClick() {
+    public void getBatchList(List<InventoryJournal> kartuBarangList) {
 
-//        InventoryJournalHandler.onChangedType(badStock.get());
-        refresh();
+        HashSet<String> hashSetBatchs
+                = new HashSet<String>(batchs);
+
+        // iterate through HashSet
+        batchsUnique.addAll(hashSetBatchs);
+
+//        if (kartuBarangHandler != null)
+//            kartuBarangHandler.onGetKartuBarangBatch(batchsUnique, kartuBarangList);
+
+        for (String strBatchUnique : batchsUnique)
+            Log.d(TAG, "getBatchList: " + strBatchUnique);
 
     }
 
-    public void onGoodStockClick() {
-        badStock.set(false);
 
+    public void refreshByBatch() {
+        if (inventoryJournalHandler != null)
+            inventoryJournalHandler.onStartGetInventoryJournal();
+
+        if (inventoryJournalDisposable != null && !inventoryJournalDisposable.isDisposed())
+            getCompositeDisposable().remove(inventoryJournalDisposable);
+
+        inventoryJournalDisposable = getKartuBarangBatch()
+                .subscribe(inventoryJournalByBatchList -> {
+                    if (inventoryJournalDisposable != null)
+                        inventoryJournalHandler.onGetInventoryJournal(inventoryJournalByBatchList);
+                    productItnam.set(inventoryJournalByBatchList.get(0).getITEM_NO() + " - " +
+                            inventoryJournalByBatchList.get(0).getITEM_NAME());
+                    productUndes.set(inventoryJournalByBatchList.get(0).getPACKAGING());
+
+                    Toast.makeText(getContext(), "Success", Toast.LENGTH_SHORT).show();
+                    getBatchList(inventoryJournalByBatchList);
+                    Log.d(TAG, "refreshByBatch: " + inventoryJournalByBatchList.size());
+                }, throwable -> {
+                    if (inventoryJournalHandler != null)
+                        inventoryJournalHandler.onError(throwable);
+                    Toast.makeText(getContext(), "Failed", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "refresh: " + throwable);
+                });
+
+        getCompositeDisposable().add(inventoryJournalDisposable);
     }
 
-    public void onBadStockClick() {
-        badStock.set(true);
-
-    }
+    public Observable<List<InventoryJournal>> getKartuBarangBatch() {
 
 
-//    public void onAddBatchClick() {
-//        if (inventoryJournalHandler != null)
-//            inventoryJournalHandler.goToSelectBatch();
-//    }
+        String url = "http://192.168.43.205/my-warehouse-web/public/api/collection";
 
 
-    public Observable<List<InventoryJournal>> getInventoryJournal() {
-        String url = "http://192.168.43.205/my-warehouse-web/public/api/getAllDataInventoryJournal";
 
 
-        Map<String, String> param = new HashMap<>();
-
-//        Collection<String> filtered = Collections2.filter(list,
-//                Predicates.containsPattern("How"));
         return Rx2AndroidNetworking.get(url)
                 .build()
                 .getJSONObjectObservable()
                 .map(jsonObject -> {
-                    List<InventoryJournal> listInventoryJournal = new ArrayList<>();
-                    List<InventoryJournal> listBadStock = new ArrayList<>();
 
-                    JSONArray dataRow = jsonObject.getJSONArray("data");
+                    List<InventoryJournal> listKartuBarangBatch = new ArrayList<>();
+                    Log.d(TAG, "getKartuBarangBatch: "+selectedBatch.get());
+                    jsonObject = jsonObject.getJSONObject("data");
+                    JSONArray batchRow = jsonObject.getJSONArray("212019A");
 
-
-                    for (int i = 0; i < dataRow.length(); i++) {
+                    for (int i = 0; i < batchRow.length(); i++) {
                         try {
-                            JSONObject obj = dataRow.getJSONObject(i);
-
                             InventoryJournal inventoryJournal = new InventoryJournal();
+                            JSONObject obj = batchRow.getJSONObject(i);
+
                             inventoryJournal.setDATE(obj.getString("date"));
-                            inventoryJournal.setCUSTOMER(obj.getString("customer"));
                             inventoryJournal.setDOCUMENT(obj.getString("document"));
+                            inventoryJournal.setDOCTYPE(obj.getString("doc_type"));
 //                            inventoryJournal.setFINE_IN(obj.getString("fine_in"));
 //                            inventoryJournal.setFINE_OUT(obj.getString("fine_out"));
 //                            inventoryJournal.setPOOR_IN(obj.getString("poor_in"));
 //                            inventoryJournal.setPOOR_OUT(obj.getString("poor_out"));
-                            inventoryJournal.setPIC(obj.getString("pic"));
                             inventoryJournal.setITEM_NAME(obj.getString("item_name"));
                             inventoryJournal.setPACKAGING(obj.getString("packaging"));
                             inventoryJournal.setCOLLECTION(obj.getString("collection"));
                             inventoryJournal.setDATE_EXPIRED(obj.getString("date_expired"));
+
+                            if (obj.isNull("customer")) {
+                                inventoryJournal.setCUSTOMER("-");
+                            } else {
+                                inventoryJournal.setCUSTOMER(obj.getString("customer"));
+                            }
+
+                            if (obj.isNull("pic")) {
+                                inventoryJournal.setPIC("-");
+                            } else {
+                                inventoryJournal.setPIC(obj.getString("pic"));
+                            }
 
                             if (obj.isNull("fine_in")) {
                                 inventoryJournal.setFINE_IN("0");
@@ -272,58 +322,262 @@ public class InventoryJournalViewModel extends BaseViewModel {
                                 inventoryJournal.setPOOR_OUT(obj.getString("poor_out"));
                             }
 
+                            String batch = inventoryJournal.getCOLLECTION();
+                            batchs.add(batch);
 
 
-                            // Calculate Good Stock
+                            // Calculate
                             int in = Integer.parseInt(inventoryJournal.getFINE_IN());
                             int out = Integer.parseInt(inventoryJournal.getFINE_OUT());
                             double inBad = Double.parseDouble(inventoryJournal.getPOOR_IN());
                             double outBad = Double.parseDouble(inventoryJournal.getPOOR_OUT());
-                            int result = in - out;
+                            int result = in - out; // -> -1 / 1
                             inventoryJournal.setRESULT(String.valueOf(result));
 
                             int balance = 0;
-                            if (i == 0) {
-                                balance += result;
-                                inventoryJournal.setBALANCE(String.valueOf(balance));
-                            } else {
-                                int newBalance = Integer.parseInt(listInventoryJournal.get(i-1).getBALANCE());
-                                newBalance += result;
-                                inventoryJournal.setBALANCE(String.valueOf(newBalance));
+                            double balanceBad = 0.0;
+                            int totalBalanceGoodStock;
+                            double totalBalanceBadStock;
+                            int previousBalanceIn;
+                            int previousBalanceOut;
+                            double previousBalanceInBadStock = 0.0;
+                            double previousBalanceOutBadStock = 0.0;
+
+                            // Calculate SA RET
+
+                            if (inventoryJournal.getDOCTYPE().equals("SA")) {
+                                inventoryJournal.setRESULT(String.valueOf(in));
+                                inventoryJournal.setRESULTBAD(String.valueOf(inBad));
+                                inventoryJournal.setBALANCE(String.valueOf(in));
+                                inventoryJournal.setBALANCEBAD(String.valueOf(inBad));
+                                stokAwal.set(inventoryJournal.getBALANCE());
+                                stokAwalBad.set(inventoryJournal.getBALANCEBAD());
+
                             }
 
-                            //Calculate Bad Stock
-                            double resultBad = inBad - outBad;
-                            inventoryJournal.setRESULTBAD(String.valueOf(resultBad));
+                            if(inventoryJournal.getDOCTYPE().equals("RETC")) {
 
-                            double balanceBad = 0;
-                            if (i == 0) {
-                                balanceBad += resultBad;
-                                inventoryJournal.setBALANCEBAD(String.valueOf(balanceBad));
-                            } else {
-                                double newBalanceBad = Double.parseDouble(listInventoryJournal.get(i-1).getBALANCEBAD());
-                                newBalanceBad += resultBad;
-                                inventoryJournal.setBALANCEBAD(String.valueOf(newBalanceBad));
-                            }
+                                previousBalanceIn = Integer.parseInt(listKartuBarangBatch.get(i - 1).getBALANCE());
+                                previousBalanceInBadStock = Double.parseDouble(listKartuBarangBatch.get(i - 1).getBALANCEBAD());
+                                totalBalanceGoodStock = previousBalanceIn + in;
+                                inventoryJournal.setBALANCE(String.valueOf(totalBalanceGoodStock));
+                                totalBalanceBadStock = previousBalanceInBadStock + inBad;
+                                inventoryJournal.setBALANCEBAD(String.valueOf(totalBalanceBadStock));
+                                inventoryJournal.setRESULT(String.valueOf(in));
+                                inventoryJournal.setRESULTBAD(String.valueOf(inBad));
 
-
-                            if (i == 0) {
-                                inventoryJournal.setISBADSTOCK("1");
-                            }
-                            else if (i > 0) {
-                                //BadStock
-                                if(inBad == 0.0 && outBad == 0.0) {
-                                    inventoryJournal.setISBADSTOCK("0");
-
-                                }
-                                else {
+                                if(inBad != 0 || outBad != 0) {
                                     inventoryJournal.setISBADSTOCK("1");
-                                    Log.d(TAG, "getKartuBarang: BadStock "+i);
-                                    Log.d(TAG, "getKartuBarang: BadStockSize "+ listBadStock.size());
+
                                 }
                             }
 
-                            inventoryJournals.add(inventoryJournal.getCOLLECTION());
+                            // Calculate INV RETCU
+                            if(inventoryJournal.getDOCTYPE().equals("INV") ||
+                                    inventoryJournal.getDOCTYPE().equals("RETCU")) {
+
+
+                                previousBalanceOut = Integer.parseInt(listKartuBarangBatch.get(i - 1).getBALANCE());
+                                previousBalanceOutBadStock = Double.parseDouble(listKartuBarangBatch.get(i - 1).getBALANCEBAD());
+
+
+
+                                if(inBad != 0 || outBad != 0) {
+                                    inventoryJournal.setISBADSTOCK("1");
+
+                                }
+                                totalBalanceGoodStock = previousBalanceOut - out;
+                                inventoryJournal.setBALANCE(String.valueOf(totalBalanceGoodStock));
+                                totalBalanceBadStock = previousBalanceOutBadStock - outBad;
+                                inventoryJournal.setBALANCEBAD(String.valueOf(totalBalanceBadStock));
+                                inventoryJournal.setRESULT(String.valueOf(out));
+                                inventoryJournal.setRESULTBAD(String.valueOf(outBad));
+                            }
+
+                            if (i == batchRow.length()) {
+                                lastBalance = Integer.parseInt(inventoryJournal.getBALANCE());
+                            }
+
+                            inventoryJournalsCollectionList.add(inventoryJournal.getCOLLECTION());
+                            listKartuBarangBatch.add(inventoryJournal);
+                        } catch (JSONException e) {
+                            Log.e(TAG, "getKartuBarang: JSONError on index: " + i + "; " +
+                                    e.getMessage());
+                        }
+                    }
+
+                    return listKartuBarangBatch;
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io());
+    }
+
+    public void onSearchKartuBarangClick() {
+
+//        InventoryJournalHandler.onChangedType(badStock.get());
+        refresh();
+        Toast.makeText(getContext(), "Mohon Tunggu...", Toast.LENGTH_SHORT).show();
+
+    }
+
+    public void onGoodStockClick() {
+        badStock.set(false);
+
+    }
+
+    public void onBadStockClick() {
+        badStock.set(true);
+
+    }
+
+
+//    public void onAddBatchClick() {
+//        if (inventoryJournalHandler != null)
+//            inventoryJournalHandler.goToSelectBatch();
+//    }
+
+
+    public Observable<List<InventoryJournal>> getInventoryJournal() {
+        String url = "http://192.168.43.205/my-warehouse-web/public/api/showFlashdisk";
+
+        return Rx2AndroidNetworking.get(url)
+                .build()
+                .getJSONObjectObservable()
+                .map(jsonObject -> {
+                    List<InventoryJournal> listInventoryJournal = new ArrayList<>();
+
+                    JSONArray dataRow = jsonObject.getJSONArray("data");
+
+
+                    for (int i = 0; i < dataRow.length(); i++) {
+                        try {
+                            JSONObject obj = dataRow.getJSONObject(i);
+
+                            InventoryJournal inventoryJournal = new InventoryJournal();
+                            inventoryJournal.setDATE(obj.getString("date"));
+                            inventoryJournal.setDOCUMENT(obj.getString("document"));
+                            inventoryJournal.setDOCTYPE(obj.getString("doc_type"));
+//                            inventoryJournal.setFINE_IN(obj.getString("fine_in"));
+//                            inventoryJournal.setFINE_OUT(obj.getString("fine_out"));
+//                            inventoryJournal.setPOOR_IN(obj.getString("poor_in"));
+//                            inventoryJournal.setPOOR_OUT(obj.getString("poor_out"));
+                            inventoryJournal.setITEM_NAME(obj.getString("item_name"));
+                            inventoryJournal.setPACKAGING(obj.getString("packaging"));
+                            inventoryJournal.setCOLLECTION(obj.getString("collection"));
+                            inventoryJournal.setDATE_EXPIRED(obj.getString("date_expired"));
+
+                            if (obj.isNull("customer")) {
+                                inventoryJournal.setCUSTOMER("-");
+                            } else {
+                                inventoryJournal.setCUSTOMER(obj.getString("customer"));
+                            }
+
+                            if (obj.isNull("pic")) {
+                                inventoryJournal.setPIC("-");
+                            } else {
+                                inventoryJournal.setPIC(obj.getString("pic"));
+                            }
+
+                            if (obj.isNull("fine_in")) {
+                                inventoryJournal.setFINE_IN("0");
+                            } else {
+                                inventoryJournal.setFINE_IN(obj.getString("fine_in"));
+                            }
+
+                            if (obj.isNull("fine_out")) {
+                                inventoryJournal.setFINE_OUT("0");
+                            } else {
+                                inventoryJournal.setFINE_OUT(obj.getString("fine_out"));
+                            }
+
+                            if (obj.isNull("poor_in")) {
+                                inventoryJournal.setPOOR_IN("0");
+                            } else {
+                                inventoryJournal.setPOOR_IN(obj.getString("poor_in"));
+                            }
+
+                            if (obj.isNull("poor_out")) {
+                                inventoryJournal.setPOOR_OUT("0.00");
+                            } else {
+                                inventoryJournal.setPOOR_OUT(obj.getString("poor_out"));
+                            }
+
+                            String batch = inventoryJournal.getCOLLECTION();
+                            batchs.add(batch);
+
+                            // Calculate
+                            int in = Integer.parseInt(inventoryJournal.getFINE_IN());
+                            int out = Integer.parseInt(inventoryJournal.getFINE_OUT());
+                            double inBad = Double.parseDouble(inventoryJournal.getPOOR_IN());
+                            double outBad = Double.parseDouble(inventoryJournal.getPOOR_OUT());
+                            int result = in - out; // -> -1 / 1
+                            inventoryJournal.setRESULT(String.valueOf(result));
+
+                            int balance = 0;
+                            double balanceBad = 0.0;
+                            int totalBalanceGoodStock;
+                            double totalBalanceBadStock;
+                            int previousBalanceIn;
+                            int previousBalanceOut;
+                            double previousBalanceInBadStock = 0.0;
+                            double previousBalanceOutBadStock = 0.0;
+
+                            // Calculate SA RET
+
+                            if (inventoryJournal.getDOCTYPE().equals("SA")) {
+                                inventoryJournal.setRESULT(String.valueOf(in));
+                                inventoryJournal.setRESULTBAD(String.valueOf(inBad));
+                                inventoryJournal.setBALANCE(String.valueOf(in));
+                                inventoryJournal.setBALANCEBAD(String.valueOf(inBad));
+                                stokAwal.set(inventoryJournal.getBALANCE());
+                                stokAwalBad.set(inventoryJournal.getBALANCEBAD());
+
+                            }
+
+                            if(inventoryJournal.getDOCTYPE().equals("RETC")) {
+
+                                previousBalanceIn = Integer.parseInt(listInventoryJournal.get(i - 1).getBALANCE());
+                                previousBalanceInBadStock = Double.parseDouble(listInventoryJournal.get(i - 1).getBALANCEBAD());
+                                totalBalanceGoodStock = previousBalanceIn + in;
+                                inventoryJournal.setBALANCE(String.valueOf(totalBalanceGoodStock));
+                                totalBalanceBadStock = previousBalanceInBadStock + inBad;
+                                inventoryJournal.setBALANCEBAD(String.valueOf(totalBalanceBadStock));
+                                inventoryJournal.setRESULT(String.valueOf(in));
+                                inventoryJournal.setRESULTBAD(String.valueOf(inBad));
+
+                                if(inBad != 0 || outBad != 0) {
+                                    inventoryJournal.setISBADSTOCK("1");
+
+                                }
+                            }
+
+                            // Calculate INV RETCU
+                            if(inventoryJournal.getDOCTYPE().equals("INV") ||
+                                    inventoryJournal.getDOCTYPE().equals("RETCU")) {
+
+
+                                    previousBalanceOut = Integer.parseInt(listInventoryJournal.get(i - 1).getBALANCE());
+                                    previousBalanceOutBadStock = Double.parseDouble(listInventoryJournal.get(i - 1).getBALANCEBAD());
+
+
+
+                                if(inBad != 0 || outBad != 0) {
+                                    inventoryJournal.setISBADSTOCK("1");
+
+                                }
+                                totalBalanceGoodStock = previousBalanceOut - out;
+                                inventoryJournal.setBALANCE(String.valueOf(totalBalanceGoodStock));
+                                totalBalanceBadStock = previousBalanceOutBadStock - outBad;
+                                inventoryJournal.setBALANCEBAD(String.valueOf(totalBalanceBadStock));
+                                inventoryJournal.setRESULT(String.valueOf(out));
+                                inventoryJournal.setRESULTBAD(String.valueOf(outBad));
+                            }
+
+                            if (i == dataRow.length()) {
+                                lastBalance = Integer.parseInt(inventoryJournal.getBALANCE());
+                            }
+
+                            inventoryJournalsCollectionList.add(inventoryJournal.getCOLLECTION());
                             listInventoryJournal.add(inventoryJournal);
                         }
                         catch (JSONException e) {
@@ -334,5 +588,12 @@ public class InventoryJournalViewModel extends BaseViewModel {
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io());
+    }
+
+    @Override
+    public void onBatchSelected(String batch) {
+        selectedBatch.set(batch);
+        refreshByBatch();
+        dialog.dismiss();
     }
 }

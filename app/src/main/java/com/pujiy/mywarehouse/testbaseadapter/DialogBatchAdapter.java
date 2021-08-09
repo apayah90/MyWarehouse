@@ -12,6 +12,7 @@ import com.pujiy.mywarehouse.databinding.DialogListBatchBinding;
 import java.util.List;
 
 public class DialogBatchAdapter extends BaseRecyclerAdapter<String> {
+    private List<String> listKartuBarang;
     public DialogBatchAdapter(List<String> originalList) {
         super(originalList);
     }

@@ -17,10 +17,12 @@
         android:theme="@style/Theme.MyWarehouse"
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
-        <activity android:name=".inventoryjournal.expandable.ExpandableRecyclerViewActivity"></activity>
+        <activity android:name=".MainActivity"/>
+        <activity android:name=".expandablerecyclerview.ExpandableRecyclerActivity" />
+        <activity android:name=".inventoryjournal.expandable.ExpandableRecyclerViewActivity" />
         <activity android:name=".inventoryjournal.selectbatch.SelectBatchActivity" />
         <activity android:name=".exception.HandlerActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".nestedrecyclerview.NestedRecyclerActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

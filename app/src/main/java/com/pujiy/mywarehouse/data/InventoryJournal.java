@@ -5,6 +5,7 @@ public class InventoryJournal {
     private String DATE;
     private String CUSTOMER;
     private String DOCUMENT;
+    private String DOCTYPE;
     private String FINE_IN;
     private String FINE_OUT;
     private String POOR_IN;
@@ -20,6 +21,14 @@ public class InventoryJournal {
     private String RESULTBAD;
     private String ITEM_NO;
     private String ISBADSTOCK;
+
+    public String getDOCTYPE() {
+        return DOCTYPE;
+    }
+
+    public void setDOCTYPE(String DOCTYPE) {
+        this.DOCTYPE = DOCTYPE;
+    }
 
     public String getISBADSTOCK() {
         return ISBADSTOCK;
